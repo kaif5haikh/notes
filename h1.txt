@@ -1,1 +1,713 @@
-hello this is pract 2
+practical 1
+1a,bfs
+graph = {
+  "A":["B","C"],
+  "B":["D","E"],
+  "C":["F","G"],
+  "D":["H","I"],
+  "E":["J","K"],
+  "F":["L","M"],
+  "G":["N","O"],
+  "H":[],
+  "I":[],
+  "J":[],
+  "K":[],
+  "L":[],
+  "M":[],
+  "N":[],
+  "O":[],
+}
+
+visited = []
+queue = []
+
+def bfs(graph,visited,node):
+  visited.append(node)
+  queue.append(node)
+
+  while queue:
+    n = queue.pop(0)
+    print(n,end=" ")
+    for child in graph[n]:
+      if child not in visited:
+        visited.append(child)
+        queue.append(child)
+
+bfs(graph,visited,"A")
+1b,dfs
+graph = {
+  "A":["B","C"],
+  "B":["D","E"],
+  "C":["F","G"],
+  "D":["H","I"],
+  "E":["J","K"],
+  "F":["L","M"],
+  "G":["N","O"],
+  "H":[],
+  "I":[],
+  "J":[],
+  "K":[],
+  "L":[],
+  "M":[],
+  "N":[],
+  "O":[],
+}
+
+visited =[]
+stack = []
+
+def dfs(graph,visited,node):
+  visited.append(node)
+  stack.append(node)
+
+  while stack:
+    n = stack.pop()
+    print(n,end=" ")
+    for child in reversed(graph[n]):
+      if child not in visited:
+        visited.append(child)
+        stack.append(child)
+dfs(graph,visited,"A")
+1c,rdfs
+graph = {
+  "A":["B","C"],
+  "B":["D","E"],
+  "C":["F","G"],
+  "D":["H","I"],
+  "E":["J","K"],
+  "F":["L","M"],
+  "G":["N","O"],
+  "H":[],
+  "I":[],
+  "J":[],
+  "K":[],
+  "L":[],
+  "M":[],
+  "N":[],
+  "O":[],
+}
+visited = []
+
+def rdfs(tree,node):
+  if node not in visited:
+    print(node,end=" ")
+    visited.append(node)
+
+    for child in graph[node]: 
+      if child not in visited:
+        rdfs(graph,child)
+
+rdfs(graph,"A")
+practical 2:
+1a)
+# Recursive Best First Search
+
+def rbest(graph, current_node, target_node, heuristics,
+          visited=None, path=None, cost_so_far=0, limit=float('inf')):
+
+    if visited is None:
+        visited = []
+
+    if path is None:
+        path = []
+
+    # Goal Test
+    if current_node == target_node:
+        return path + [current_node], cost_so_far
+
+    visited.append(current_node)
+    path.append(current_node)
+
+    successors = []
+
+    # Generate successors
+    for neighbor, edge_cost in graph[current_node]:
+        estimated_cost = cost_so_far + edge_cost + heuristics[neighbor]
+        successors.append((estimated_cost, neighbor, edge_cost))
+
+    successors.sort()
+
+    # Explore successors
+    for estimated_cost, neighbor, edge_cost in successors:
+        if estimated_cost > limit:
+            continue
+
+        result_path, result_cost = rbest(
+            graph,
+            neighbor,
+            target_node,
+            heuristics,
+            visited.copy(),
+            path.copy(),
+            cost_so_far + edge_cost,
+            min(estimated_cost, limit)
+        )
+
+        if result_path:
+            return result_path, result_cost
+
+    return None, float('inf')
+
+
+# Graph
+graph = {
+    'A': [('B', 1), ('C', 5)],
+    'B': [('D', 3), ('E', 2)],
+    'C': [('F', 1)],
+    'D': [('G', 4)],
+    'E': [('G', 6)],
+    'F': [('G', 2)],
+    'G': []
+}
+
+# Heuristic values
+heuristics = {
+    'A': 7,
+    'B': 6,
+    'C': 2,
+    'D': 4,
+    'E': 4,
+    'F': 1,
+    'G': 0
+}
+
+# Run RBFS
+path, cost = rbest(graph, 'A', 'E', heuristics)
+
+if path:
+    print("Path Found:", path)
+    print("Path Cost:", cost)
+else:
+    print("No path exists")
+2b)
+# Heuristic Function
+def heuristic(n):
+    H_dist = {
+        'A': 7,
+        'B': 6,
+        'C': 2,
+        'D': 4,
+        'E': 4,
+        'F': 1,
+        'G': 0
+    }
+    return H_dist[n]
+
+
+# Graph Representation
+Graph_nodes = {
+    'A': [('B', 1), ('C', 5)],
+    'B': [('D', 3), ('E', 2)],
+    'C': [('F', 1), ('A', 5)],
+    'D': [('B', 3), ('G', 4)],
+    'E': [('B', 2), ('G', 6)],
+    'F': [('C', 1), ('G', 2)],
+    'G': [('F', 2), ('D', 4), ('E', 6)]
+}
+
+
+def astar(start_node, stop_node):
+
+    open_set = set([start_node])
+    closed_set = set()
+
+    g = {start_node: 0}
+
+    parent = {start_node: start_node}
+
+    while open_set:
+
+        n = None
+
+        # Find node with lowest f(n)
+        for v in open_set:
+            if n is None or g[v] + heuristic(v) < g[n] + heuristic(n):
+                n = v
+
+        if n is None:
+            print("Path does not exist")
+            return None
+
+        # Goal reached
+        if n == stop_node:
+            path = []
+
+            while parent[n] != n:
+                path.append(n)
+                n = parent[n]
+
+            path.append(start_node)
+            path.reverse()
+
+            print("Path found:", path)
+            return path
+
+        # Explore neighbors
+        for (m, weight) in Graph_nodes[n]:
+
+            if m not in open_set and m not in closed_set:
+                open_set.add(m)
+                parent[m] = n
+                g[m] = g[n] + weight
+
+            else:
+                if g[m] > g[n] + weight:
+                    g[m] = g[n] + weight
+                    parent[m] = n
+
+                    if m in closed_set:
+                        closed_set.remove(m)
+                        open_set.add(m)
+
+        open_set.remove(n)
+        closed_set.add(n)
+
+    print("Path does not exist")
+    return None
+
+
+# Run A*
+astar('A', 'E')
+
+practical 3:
+3a)
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier 
+from sklearn.metrics import accuracy_score
+from sklearn import tree
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+iris_data = load_iris()
+
+df = pd.DataFrame(data=iris_data.data,columns=iris_data.feature_names)
+
+df['species'] = iris_data.target 
+print(df)
+
+X = df.drop('species',axis=1)
+Y = df['species']
+
+x_train,x_test,y_train,y_test = train_test_split(X,Y,test_size=0.2,random_state=0)
+
+d_clf = DecisionTreeClassifier(random_state=0)
+
+d_clf.fit(x_train,y_train)
+y_pred = d_clf.predict(x_test)
+
+accuracy = accuracy_score(y_pred,y_test)
+
+print("Accuracy",accuracy)
+
+plt.figure(figsize=(11,15))
+
+tree.plot_tree(d_clf,feature_names=iris_data.feature_names,class_names=list(iris_data.target_names),filled=True)
+
+plt.show()
+
+3b)
+
+import pandas as pd
+import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+from mlxtend.plotting import plot_decision_regions
+
+import matplotlib.pyplot as plt
+iris = load_iris()
+X = iris.data[:,2:]
+Y = iris.target
+
+x_train,x_test,y_train,y_test  = train_test_split(X,Y,test_size=0.25,random_state=1)
+#trainig model
+rfc = RandomForestClassifier(n_estimators=5,n_jobs=2,random_state=1)
+rfc.fit(x_train,y_train)
+y_pred = rfc.predict(x_test)
+accuray = accuracy_score(y_pred=y_pred,y_true=y_test)
+print("accuracy",accuray)
+X_combined = np.vstack((x_train,x_test))
+Y_combined = np.hstack((y_train,y_test))
+
+plt.figure(figsize=(10,12))
+plot_decision_regions(X_combined,Y_combined,clf=rfc)
+plt.xlabel(iris.feature_names[2])
+plt.ylabel(iris.feature_names[3])
+plt.title("Random Forest - Iris Dataset")
+plt.show( )
+
+3c)
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from mlxtend.plotting import plot_decision_regions
+
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_diabetes
+from sklearn.ensemble import RandomForestClassifier
+
+
+load_diabetes_data = load_diabetes()
+
+# print(load_diabetes_data)
+X = load_diabetes_data.data[:,2:4] #bmi and bp column
+print(X)
+Y = (load_diabetes_data.target > np.median(load_diabetes_data.target)).astype(int) 
+print(Y)
+
+
+x_train,x_test,y_train,y_test = train_test_split(X,Y,test_size=0.25,random_state=1)
+
+rf_clf = RandomForestClassifier(n_estimators=5,n_jobs=2,random_state=1)
+rf_clf.fit(x_train,y_train)
+
+y_pred = rf_clf.predict(x_test)
+
+accuracy = accuracy_score(y_pred=y_pred,y_true=y_test)
+print("accuracy:",accuracy)
+
+x_combined = np.vstack((x_train,x_test))
+y_combined = np.hstack((y_train,y_test))
+
+plt.figure(figsize=(10,10))
+plot_decision_regions(
+  clf=rf_clf,
+  X=x_combined,
+  y=y_combined,
+
+)
+plt.xlabel(load_diabetes_data.feature_names[2]) #bmi
+plt.ylabel(load_diabetes_data.feature_names[3]) #bp
+plt.title("Random forest - diabetes dataset")
+plt.show()
+
+practical 4:
+from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import make_classification
+
+
+X,y = make_classification(
+  n_samples=100,
+  random_state=42
+)
+print(X)
+print(y)  
+x_train,x_test,y_train,y_test = train_test_split(X,y,stratify=y,random_state=42)
+
+
+nlp_model = MLPClassifier(
+  hidden_layer_sizes=(100,), # one hidden layer with 100 neurons
+  max_iter = 500, # maximum trainig iteration
+  activation='relu', # activation function
+  solver='adam',
+  random_state=42
+)
+nlp_model.fit(x_train,y_train)
+pred = nlp_model.predict(x_test)
+accuracy = accuracy_score(y_test,pred)
+print("Model accuracy",accuracy)
+
+practical 5:
+# Practical no.5
+#Aim : Implement SVM Algorithm on Cars dataset
+
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.svm import SVC
+from sklearn.preprocessing import LabelEncoder
+
+# print(df.columns)
+
+le = LabelEncoder()
+
+columns = ['buying','maint','doors','persons','lug_boot','safety','car'] # trick to rember "Big my dad purchase lovely safe car"
+df = pd.read_csv('.\\cars_dataset.csv',names=columns)
+
+for col in columns:
+  df[col] = le.fit_transform(df[col])
+print(df)
+
+X = df.drop('car',axis=1)
+Y = df['car']
+
+x_train,x_test,y_train,y_test  = train_test_split(X,Y,test_size=0.2,random_state=1)
+
+svm_clf = SVC(
+  kernel='rbf', # 'linear', 'poly', 'rbf', 'sigmoid'
+  C=1, # 0.8,0.9,1
+  gamma='scale',
+  random_state=42
+)
+svm_clf.fit(x_train,y_train)
+y_pred = svm_clf.predict(x_test)
+
+accuracy = accuracy_score(y_pred,y_test)
+print("accuracy",accuracy)
+
+
+practical 6:
+# Aim:implement adaboost ensemble learning algorithm
+
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+
+iris = load_iris()
+X = iris.data
+Y = iris.target
+
+x_train,x_test,y_train,y_test = train_test_split(X,Y,test_size=0.2,random_state=42)
+
+ada_model = AdaBoostClassifier(
+  n_estimators=90,
+  learning_rate=0.1,
+  random_state=42
+)
+
+ada_model.fit(x_train,y_train)
+y_pred = ada_model.predict(x_test)
+
+accuracy = accuracy_score(y_pred,y_test)
+print(accuracy)
+
+practical 7:
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    ConfusionMatrixDisplay,
+    f1_score
+)
+
+# Load dataset
+df = pd.read_csv('loan_data.csv')
+
+# Display first few rows
+print(df.head())
+
+# Visualize data
+sns.countplot(data=df, x='purpose', hue='not.fully.paid')
+plt.xticks(rotation=45, ha='right')
+plt.show()
+
+# Convert categorical variable into numerical form
+pre_df = pd.get_dummies(df, columns=['purpose'], drop_first=True)
+
+print(pre_df.head())
+
+# Separate features and target variable
+X = pre_df.drop('not.fully.paid', axis=1)
+Y = pre_df['not.fully.paid']
+
+# Split dataset into training and testing data
+x_train, x_test, y_train, y_test = train_test_split(
+    X, Y, test_size=0.33, random_state=42
+)
+
+# Create Naive Bayes model
+model = GaussianNB()
+
+# Train the model
+model.fit(x_train, y_train)
+
+# Make predictions
+y_pred = model.predict(x_test)
+
+# Evaluate model
+accuracy = accuracy_score(y_test, y_pred)
+f1 = f1_score(y_test, y_pred, average='weighted')
+
+print("Accuracy:", accuracy)
+print("F1 Score:", f1)
+
+# Confusion Matrix
+labels = ["Fully Paid", "Not Fully Paid"]
+
+cm = confusion_matrix(y_test, y_pred)
+
+disp = ConfusionMatrixDisplay(
+    confusion_matrix=cm,
+    display_labels=labels
+)
+
+disp.plot()
+plt.show()
+
+practical 8:
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.metrics import confusion_matrix,accuracy_score,ConfusionMatrixDisplay
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+
+
+df = pd.read_csv('Social_Network_Ads.csv')
+print(df)
+
+df = df[['Age','EstimatedSalary','Purchased']] # why am i doing this? because gender values are not numerical it will give error then why we are removing that
+
+print(df)
+
+X = df.drop('Purchased',axis=1)
+Y = df['Purchased']
+
+# spliting dataset
+x_train,x_test,y_train,y_test = train_test_split(X,Y,test_size=0.20,random_state=42)
+
+# feature scaling of estimated salary
+sc = StandardScaler()
+x_train = sc.fit_transform(x_train)
+print(x_train)
+x_test  = sc.fit_transform(x_test)
+print("*****************")
+print(x_test)
+
+knn_clf = KNeighborsClassifier(
+  n_neighbors=3,
+  metric='minkowski', # minkowski is general distance formula
+  p=2,
+
+)
+
+knn_clf.fit(x_train,y_train)
+
+y_pred = knn_clf.predict(x_test)
+
+accuracy = accuracy_score(y_true=y_test,y_pred=y_pred)
+cm = confusion_matrix(y_true=y_test,y_pred=y_pred)
+print("accuracy",accuracy)
+
+# displaying confusino matrix
+labels = ['Not Bought','Bought']
+disp = ConfusionMatrixDisplay(confusion_matrix=cm,display_labels=labels)
+disp.plot()
+plt.title("KNN confusion matrix")
+plt.show()
+
+
+practical 9:
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori,association_rules
+
+#creating own dataset
+
+dataset = [
+  ['milk','bread','jam'],
+  ['milk','bread'],
+  ['bread','butter'],
+  ['milk','jam'],
+  ['bread','jam'],
+]
+
+# converting transcations into one-hot encoding format
+te = TransactionEncoder()
+te_array = te.fit(dataset).transform(dataset)
+print(te_array)
+df = pd.DataFrame(te_array,columns=te.columns_)
+
+print('One Hot Encoded data:')
+print(df)
+
+# find frequent itemsets (minimum support 20%)
+rules = association_rules(
+  df,
+  min_threshold=0.2,
+  
+)
+
+practical 10:
+10a)
+import tensorflow as tf
+import datetime
+import numpy as np
+
+# Setup TensorBoard log directory
+log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+tensorboard_callback = tf.keras.callbacks.TensorBoard(
+    log_dir=log_dir,
+    histogram_freq=1
+)
+
+# Create a simple neural network model
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(units=1, input_shape=[1])
+])
+
+# Compile the model
+model.compile(
+    optimizer='sgd',
+    loss='mean_squared_error'
+)
+
+# Provide training data
+xs = np.array([-1.0, 0.0, 1.0, 2.0, 3.0, 4.0], dtype=float)
+ys = np.array([-3.0, -1.0, 1.0, 3.0, 5.0, 7.0], dtype=float)
+
+print("Training model and saving logs to:", log_dir)
+
+# Train the model
+model.fit(xs, ys, epochs=50, callbacks=[tensorboard_callback])
+
+
+10)b
+import tensorflow as tf
+import numpy as np
+
+# Simulate a dataset using NumPy arrays
+features = np.array([[1,2], [3,4], [5,6], [7,8]])
+labels = np.array([0, 1, 0, 1])
+
+# Create TensorFlow dataset
+dataset = tf.data.Dataset.from_tensor_slices((features, labels))
+
+# Apply transformations
+dataset = dataset.shuffle(buffer_size=4).batch(2).repeat()
+
+# Iterate through dataset batches
+print("Iterating over the dataset batches:")
+
+for element in dataset.take(3):
+    print("Features:", element[0], "Labels:", element[1])
+
+10c)
+import tensorflow as tf
+
+# Create a simple model
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(units=1, input_shape=[1])
+])
+
+# Compile model
+model.compile(
+    optimizer='sgd',
+    loss='mean_squared_error'
+)
+
+# Convert model to TensorFlow Lite format
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+tflite_model = converter.convert()
+
+# Save the converted model
+with open('simple_model.tflite', 'wb') as f:
+    f.write(tflite_model)
+
+print("Model converted to TFLite format and saved as simple_model.tflite")
